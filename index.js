@@ -90,7 +90,7 @@ app.get('/', (req, res) => {
 
       <div class="card">
         <h3>Project Owner</h3>
-        <p>Shubham Borukar</p>
+        <p>Shubham Borekar</p>
         <p>CloudOps Engineer</p>
       </div>
 
