@@ -6,6 +6,7 @@ pipeline {
         IMAGE_TAG = "${BUILD_NUMBER}"
         ECR_REPO = "737911104301.dkr.ecr.ap-south-1.amazonaws.com/devops-cicd-project"
         AWS_REGION = "ap-south-1"
+        EKS_CLUSTER_NAME = "devops-cluster"
     }
 
     stages {
@@ -32,6 +33,7 @@ pipeline {
                     sh '''
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_DEFAULT_REGION=$AWS_REGION
                         aws sts get-caller-identity
                     '''
                 }
@@ -48,7 +50,8 @@ pipeline {
                     sh '''
                         export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
                         export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
-                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 737911104301.dkr.ecr.ap-south-1.amazonaws.com
+                        export AWS_DEFAULT_REGION=$AWS_REGION
+                        aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 737911104301.dkr.ecr.ap-south-1.amazonaws.com
                     '''
                 }
             }
@@ -62,7 +65,23 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                sh "kubectl set image deployment/devops-app devops-container=${ECR_REPO}:${IMAGE_TAG}"
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        export AWS_DEFAULT_REGION=$AWS_REGION
+
+                        mkdir -p ~/.kube
+                        aws eks update-kubeconfig --region $AWS_REGION --name $EKS_CLUSTER_NAME
+                        kubectl config current-context
+                        kubectl get nodes
+                        kubectl set image deployment/devops-app devops-container=${ECR_REPO}:${IMAGE_TAG}
+                    '''
+                }
             }
         }
     }
