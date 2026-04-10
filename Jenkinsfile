@@ -22,12 +22,35 @@ pipeline {
             }
         }
 
+        stage('Verify AWS Identity') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        aws sts get-caller-identity
+                    '''
+                }
+            }
+        }
+
         stage('Login to ECR') {
             steps {
-                sh """
-                aws ecr get-login-password --region ${AWS_REGION} | \
-                docker login --username AWS --password-stdin 737911104301.dkr.ecr.ap-south-1.amazonaws.com
-                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-creds',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh '''
+                        export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
+                        export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY
+                        aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 737911104301.dkr.ecr.ap-south-1.amazonaws.com
+                    '''
+                }
             }
         }
 
@@ -39,10 +62,7 @@ pipeline {
 
         stage('Deploy to EKS') {
             steps {
-                sh """
-                kubectl set image deployment/devops-app \
-                devops-app=${ECR_REPO}:${IMAGE_TAG}
-                """
+                sh "kubectl set image deployment/devops-app devops-container=${ECR_REPO}:${IMAGE_TAG}"
             }
         }
     }
