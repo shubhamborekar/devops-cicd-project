@@ -1,6 +1,6 @@
 # 🚀 DevOps CI/CD Project (AWS EKS + Jenkins + Docker)
 
-Hi, I'm Shubham Borukar 👋  
+Hi, I'm Shubham Borekar 👋  
 CloudOps Engineer with 3+ years of experience in AWS.
 
 ## 🚀 Project Flow
