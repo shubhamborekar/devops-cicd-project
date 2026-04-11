@@ -95,7 +95,7 @@ app.get('/', (req, res) => {
       </div>
 
       <div class="footer">
-        Deployed through a real CI/CD pipeline on AWS.
+        Deployed through a real CI/CD pipeline on AWS/Devops.
       </div>
     </div>
   </body>
