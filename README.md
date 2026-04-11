@@ -1,4 +1,4 @@
-# 🚀 DevOps CI/CD Project (AWS EKS + Jenkins + Docker)
+# 🚀 DevOps CI/CD Project (AWS EKS + Jenkins + Docker + grafana)
 
 Hi, I'm Shubham Borekar 👋  
 CloudOps Engineer with 3+ years of experience in AWS.
@@ -14,6 +14,7 @@ GitHub → Jenkins → Docker → ECR → EKS → LoadBalancer
 - AWS ECR
 - AWS EKS
 - Kubernetes
+- Grafana
 
 ## 💡 About
 
